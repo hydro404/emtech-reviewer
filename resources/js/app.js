@@ -97,7 +97,7 @@ Alpine.data('quiz', (initialData) => ({
         const correctAnswer = this.questions[this.currentQuestionIndex].answer;
 
         if (!this.answered) {
-            return 'bg-white dark:bg-gray-700 hover:bg-indigo-50 dark:hover:bg-gray-600';
+            return 'bg-white dark:bg-gray-700 hover:bg-indigo-50 dark:hover:bg-gray-600 cursor-pointer';
         }
 
         if (option === correctAnswer) {

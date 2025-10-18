@@ -18,12 +18,17 @@
             <script src="https://cdn.tailwindcss.com"></script>
             <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
         @endif
-        
         @yield('style')
     </head>
     
     <body class="bg-gray-100 dark:bg-gray-900 antialiased">
-        @yield('content')
+         <div x-data="themeController" x-init="init()" class="w-full text-gray-800 dark:text-gray-200">
+            <div class="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900">
+                <!-- Navigation Bar -->
+                @include('partials.navbar')
+                @yield('content')
+            </div>
+        </div>
     </body>
 
     @yield('script')

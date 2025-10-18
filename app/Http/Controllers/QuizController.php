@@ -3,19 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class QuizController extends Controller
 {
-    /**
-     * Display the quiz view.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function show()
+
+    private $enumerationAnswers = [
+        'BALANCE', 'ALIGNMENT', 'CONTRAST', 'REPETITION',
+        'PROXIMITY', 'WHITE SPACE', 'HIERARCHY'
+    ];
+
+    public function index()
+    {
+        return view('index');
+    }
+
+    public function showPart1()
     {
         $questions = [
             [
-                'question' => "The HR representative wants to add a condition which will ensure that only 'male' and 'female' will be the options in entering a person's sex. What feature of MS Excel must be used?",
+                'question' => "The HR representative wants to add condition which will ensure that only male and female will be the options in entering a person’s sex. What feature of MS Excel must be used?",
                 'options' => ['Data Validation', 'Graph Feature', 'Conditional Formatting', 'Data Analysis'],
                 'answer' => 'Data Validation'
             ],
@@ -27,7 +34,7 @@ class QuizController extends Controller
             [
                 'question' => "Miss Boñon, a SHS Math Teacher, wants to include in her lesson a chart showing her weekly expenses as compared to the weekly expenses of Grade 12 students in Camalig National High School. What is the suitable type of computer software she must use to present her lesson?",
                 'options' => ['Presentation', 'MS PowerPoint', 'MS Excel', 'Spreadsheet or Worksheet'],
-                'answer' => 'Presentation'
+                'answer' => 'MS PowerPoint'
             ],
             [
                 'question' => "Which Microsoft Excel feature allows to sum the numerical data in any number of columns or rows by selecting them or typing them in?",
@@ -40,9 +47,19 @@ class QuizController extends Controller
                 'answer' => 'Conditional Formatting'
             ],
             [
-                'question' => "Which file format is most suitable for sharing a document online while keeping its layout intact. You can't edit files in this format.",
-                'options' => ['.docx', '.pdf', '.txt', '.xls'],
-                'answer' => '.pdf'
+                'question' => "Which Microsoft Excel feature is used to count the number of chosen cells that have a number value in them. This is useful in determining if there are missing data or values?",
+                'options' => ['SUM () Function', 'Conditional Formatting', 'AVERAGE () Function', 'COUNT () Function'],
+                'answer' => 'COUNT () Function'
+            ],
+            [
+                'question' => "Which Microsoft Excel feature allows user to get the average of all the numbers in the chosen cells?",
+                'options' => ['SUM () Function', 'Text to Columns Feature', 'AVERAGE () Function', 'COUNT () Function'],
+                'answer' => 'AVERAGE () Function'
+            ],
+            [
+                'question' => "Which Microsoft Excel feature is used to separate contents of one column to two or more columns?",
+                'options' => ['SUM () Function', 'Text to Columns Feature', 'AVERAGE () Function', 'COUNT () Function'],
+                'answer' => 'Text to Columns Feature'
             ],
             [
                 'question' => "What does ICT stand for?",
@@ -50,24 +67,288 @@ class QuizController extends Controller
                 'answer' => 'Information and Communications Technology'
             ],
             [
+                'question' => "Which of the following tools is commonly used to create presentations?",
+                'options' => ['Microsoft Excel', 'Microsoft PowerPoint', 'Adobe Photoshop', 'Google Forms'],
+                'answer' => 'Microsoft PowerPoint'
+            ],
+            [
+                'question' => "Which file format is most suitable for sharing a document online while keeping its layout intact? You can’t edit files in this format.",
+                'options' => ['.docx', '.pdf', '.txt', '.xls'],
+                'answer' => '.pdf'
+            ],
+            [
+                'question' => "If you want to present survey results effectively in a business meeting, which ICT tool would you use?",
+                'options' => ['Spreadsheet software to create charts and graphs', 'Word processing software to write a report', 'Image editing software to design visuals', 'Email software to send the results'],
+                'answer' => 'Spreadsheet software to create charts and graphs'
+            ],
+            [
+                'question' => "A student creates a video to explain their research findings. Which of the following ICT tools is the most appropriate for this task?",
+                'options' => ['Video editing software', 'Word processing software', 'Spreadsheet software', 'Web browser'],
+                'answer' => 'Video editing software'
+            ],
+            [
                 'question' => "If you are tasked to create an infographic about your career goals, which ICT tool would you use?",
                 'options' => ['Canva', 'VLC Media Player', 'Microsoft Word', 'Google Sheets'],
                 'answer' => 'Canva'
             ],
             [
-                'question' => "This makes an image look sketched, grainy, classic black and white, or even have a neon color.",
+                'question' => "You are collaborating with a classmate on a digital brochure for a business project. Which online platform would be most effective for teamwork?",
+                'options' => ['Google Docs with sharing and commenting features', 'VLC Media Player for reviewing content', 'Notepad for writing the draft', 'Paint for designing the brochure'],
+                'answer' => 'Google Docs with sharing and commenting features'
+            ],
+            [
+                'question' => "Your school asks you to design a digital invitation for an upcoming event. Which ICT tool would best help you accomplish this task?",
+                'options' => ['Canva', 'Windows Media Player', 'Google Sheets', 'Notepad'],
+                'answer' => 'Canva'
+            ],
+            [
+                'question' => "Which of the following best evaluates the effectiveness of a platform for creating ICT content?",
+                'options' => ['The number of users on the platform', 'The availability of templates and editing tools suited to the professional track', 'The cost of the platform, regardless of features', 'The popularity of the platform on social media'],
+                'answer' => 'The number of users on the platform'
+            ],
+            [
+                'question' => "What is an advantage of using Canva for creating marketing materials for a small business?",
+                'options' => ['Easy-to-use templates for posters, flyers, and social media posts', 'Expensive and requires extensive training', 'Does not allow customization of designs', 'Only allows text-based documents'],
+                'answer' => 'Easy-to-use templates for posters, flyers, and social media posts'
+            ],
+            [
+                'question' => "What should you analyze first when selecting an online platform for developing ICT content for a professional track?",
+                'options' => ["The platform's internet requirements", 'The tools and features needed to address specific purpose', "The platform's logo design", 'The colors available for editing'],
+                'answer' => 'The tools and features needed to address specific purpose'
+            ],
+            [
+                'question' => "Which of the following tools is best suited for creating professional presentations with images and videos for business meetings?",
+                'options' => ['Canva', 'Facebook', 'Instagram', 'TikTok'],
+                'answer' => 'Canva'
+            ],
+            [
+                'question' => "These are online platforms that let you showcase and share presentations, infographics, and videos with other people.",
+                'options' => ['Cloud computing', 'Presentations/Visualization', 'Social Media', 'Mapping'],
+                'answer' => 'Presentations/Visualization'
+            ],
+            [
+                'question' => "These are interactive online technologies that enable the creation or sharing of information, ideas, career interests, and other forms of expression through virtual communities and networks.",
+                'options' => ['Cloud computing', 'Web Page Creation', 'Social Media', 'File Management'],
+                'answer' => 'Social Media'
+            ],
+            [
+                'question' => "Which online platform lets you build a web page that includes colors, texts, images, and often contains links to media such as video and audio?",
+                'options' => ['Cloud computing', 'Web Page Creation', 'Social Media', 'File Management'],
+                'answer' => 'Web Page Creation'
+            ],
+            [
+                'question' => "What could be inferred about a website that uses bright, flashing colors and excessive animations?",
+                'options' => ['It prioritizes user experience and accessibility.', 'It is designed for professional business use.', 'It might distract users and reduce the clarity of its visual message.', 'It follows the principles of minimalistic design.'],
+                'answer' => 'It might distract users and reduce the clarity of its visual message.'
+            ],
+            [
+                'question' => "Based on the principles of graphic and visual message design, which website would you recommend as the most effective?",
+                'options' => ['A site with a clean layout, high-quality images, and an organized navigation menu.', 'A site that uses multiple fonts, bright background colors, and overlapping text boxes.', 'A site with no images but long paragraphs of detailed information.', 'A site that relies heavily on animations without clear text or structure.'],
+                'answer' => 'A site with a clean layout, high-quality images, and an organized navigation menu.'
+            ],
+            [
+                'question' => "This refers to the process of bringing changes to a digitizes image for transforming it to a desired image.",
+                'options' => ['Image Manipulation', 'Video Editing', 'Document Editing', 'Audio Editing'],
+                'answer' => 'Image Manipulation'
+            ],
+            [
+                'question' => "In image manipulation, this refers to cutting parts away to remove distracting or irrelevant elements.",
+                'options' => ['Color Balance', 'Cropping', 'Brightness and Contrast', 'Filters'],
+                'answer' => 'Cropping'
+            ],
+            [
+                'question' => "This makes image looked sketched, grainy, classic black and white, or even let it have a neon color.",
                 'options' => ['Color Balance', 'Cropping', 'Brightness and Contrast', 'Filters'],
                 'answer' => 'Filters'
             ],
             [
-                'question' => "This type of platform allows you to upload, download, organize, and store files on online storage, which is called the cloud.",
-                'options' => ['Cloud computing', 'Social Media', 'Presentations/Visualization', 'Mapping'],
+                'question' => "This makes the image darker or lighter.",
+                'options' => ['Color Balance', 'Cropping', 'Brightness and Contrast', 'Filters'],
+                'answer' => 'Brightness and Contrast'
+            ],
+            [
+                'question' => "This refers to the ambiance and the tone of light of the picture.",
+                'options' => ['Color Balance', 'Cropping', 'Brightness and Contrast', 'Filters'],
+                'answer' => 'Color Balance'
+            ],
+            [
+                'question' => "Which tool is used to remove the background of an image?",
+                'options' => ['Crop tool', 'Clone tool', 'Eraser tool', 'Magic Wand tool'],
+                'answer' => 'Eraser tool'
+            ],
+            [
+                'question' => "Which software is commonly used for image manipulation?",
+                'options' => ['Microsoft Word', 'Picsart', 'PowerPoint', 'Excel'],
+                'answer' => 'Picsart'
+            ],
+            [
+                'question' => "A student wants to create a poster encouraging tree planting. Which step is most effective for achieving this purpose?",
+                'options' => ['Add a bright filter and an inspirational quote about nature to an image of a forest.', 'Replace the image with a blank white background.', 'Use only text without any visuals.', 'Add random shapes without any relation to the theme.'],
+                'answer' => 'Add a bright filter and an inspirational quote about nature to an image of a forest.'
+            ],
+            [
+                'question' => "The following are examples of tools and applications used for creating infographics EXCEPT:",
+                'options' => ['Creately', 'Pictochart', 'Canva', 'Audio Trimmer'],
+                'answer' => 'Audio Trimmer'
+            ],
+            [
+                'question' => "This is an all-in-one design tool that simplifies creating professional infographics, posters, and social media graphics.",
+                'options' => ['Creately', 'Hobnox', 'Canva', 'Audio Trimmer'],
+                'answer' => 'Canva'
+            ],
+            [
+                'question' => "Prezi, Haiku Deck, and Emaze, are example of online tools and applications used for what kind of audio and visual content?",
+                'options' => ['Audio', 'Video', 'Memes', 'Presentations'],
+                'answer' => 'Presentations'
+            ],
+            [
+                'question' => "This type of platform allows you to upload, download, organize, and store files on the online storage, which is called cloud instead of using offline storage like computer desktop.",
+                'options' => ['Cloud computing', 'Presentations/Visualization', 'Social Media', 'Mapping'],
                 'answer' => 'Cloud computing'
+            ],
+            [
+                'question' => "This online platform provides detailed information about geographical regions and sites around the world.",
+                'options' => ['Cloud computing', 'Presentations/Visualization', 'Social Media', 'Mapping'],
+                'answer' => 'Mapping'
+            ],
+            [
+                'question' => "Which of the following is an example of a tool under cloud computing?",
+                'options' => ['Google Maps', 'Google Drive', 'Facebook', 'Tiktok'],
+                'answer' => 'Google Drive'
+            ],
+            [
+                'question' => "This online platform allows you to convert and manage files like images, videos, documents, audio, and more to other formats without downloading a software tool.",
+                'options' => ['Cloud computing', 'Web Page Creation', 'Social Media', 'File Management'],
+                'answer' => 'File Management'
             ]
         ];
 
-        // The questions are passed to the view, but they will be handled by AlpineJS.
+        // Jumble (shuffle) the array in place
+        shuffle($questions);
         // We need to encode them as JSON for AlpineJS to read.
-        return view('index', ['questionsJson' => json_encode($questions)]);
+        return view('part1', ['questionsJson' => $questions]);
+    }
+
+    public function showPart2(Request $request)
+    {
+        // If the URL has '?reset=true', clear the session and start over.
+        if ($request->query('reset')) {
+            session()->forget('correctly_guessed');
+            return redirect()->route('quiz.part2.show');
+        }
+
+        // Otherwise, just show the quiz view. The view will get its data from the session.
+        return view('part2');
+    }
+
+    /**
+     * Check the submitted answer for Part 2.
+     * Validates the answer and provides feedback via session flash messages.
+     */
+    public function checkPart2(Request $request)
+    {
+        // 1. Validate input
+        $request->validate(['answer' => 'required|string']);
+
+        // 2. Normalize user input
+        $userAnswer = strtoupper(trim($request->input('answer')));
+
+        // 3. Retrieve session guesses
+        $guessedAnswers = session()->get('correctly_guessed', []);
+
+        // 4. Compare with valid answers
+        if (in_array($userAnswer, $this->enumerationAnswers)) {
+            if (in_array($userAnswer, $guessedAnswers)) {
+                // Duplicate answer
+                $message = [
+                    'type' => 'warning',
+                    'text' => 'You already found that one!',
+                ];
+            } else {
+                // New correct answer
+                session()->push('correctly_guessed', $userAnswer);
+                $message = [
+                    'type' => 'success',
+                    'text' => 'Correct! Keep going.',
+                ];
+            }
+        } else {
+            // Incorrect answer
+            $message = [
+                'type' => 'error',
+                'text' => 'Not quite. Try another principle!',
+            ];
+        }
+
+        // 5. Return JSON for AJAX
+        return response()->json([
+            'message' => $message,
+            'guessedAnswers' => session()->get('correctly_guessed', []),
+            'status' => 'success',
+        ]);
+    }
+
+
+    public function resetPart2()
+    {
+        session()->forget('correctly_guessed');
+        return response()->json(['status' => 'success', 'message' => 'Quiz has been reset.']);
+    }
+
+    public function showPart3()
+    {
+        return view('part3');
+    }
+
+   public function submitPart3(Request $request)
+    {
+        $validated = $request->validate([
+            'future_career' => 'required|string|max:255',
+            'online_tool' => 'required|string|max:255',
+            'explanation' => 'required|string|max:5000',
+        ]);
+
+        $studentAnswer = "Career: {$validated['future_career']}\n".
+                         "Tool: {$validated['online_tool']}\n".
+                         "Explanation: {$validated['explanation']}";
+
+        $prompt = "You are a friendly teacher giving constructive feedback to a student's essay. ".
+                  "Here is the student's answer:\n\n{$studentAnswer}\n\n".
+                  "Provide short, encouraging feedback (2-3 sentences) that praises their effort and suggests a small improvement.";
+
+        try {
+            
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
+                'Content-Type' => 'application/json',
+                'Referer' => 'lessons2u.com',
+                'X-Title' => 'Emtech Reviewer',
+            ])->post('https://openrouter.ai/api/v1/chat/completions', [
+                'model' => 'deepseek/deepseek-chat-v3.1:free',
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+            ]);
+            \Log::info('OpenRouter response:', $response->json());
+
+            $data = $response->json();
+
+            if (isset($data['choices'][0]['message']['content'])) {
+                $advice = $data['choices'][0]['message']['content'];
+            } elseif (isset($data['error'])) {
+                $advice = 'Error: ' . $data['error']['message'];
+            } else {
+                $advice = 'No feedback available. Debug: ' . json_encode($data);
+            }
+        } catch (\Exception $e) {
+            $advice = 'AI feedback could not be generated. Please try again later.';
+        }
+
+        return redirect()->route('quiz.part3.show')->with('submittedData', [
+            'future_career' => $validated['future_career'],
+            'online_tool' => $validated['online_tool'],
+            'explanation' => $validated['explanation'],
+            'advice' => $advice,
+        ]);
     }
 }
